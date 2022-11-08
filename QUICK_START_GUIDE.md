@@ -453,13 +453,13 @@ optional arguments:
 With the `--help` command, you can list additional information, such as its parameters common to all model templates:
 command example:
 
-```
+```bash
 ote explain ./external/model-preparation-algorithm/configs/classification/mobilenet_v3_large_1_cls_incr/template.yaml --help
 ```
 
 output example:
 
-```
+```bash
 usage: ote explain [-h] TEMPLATE
                 --input INPUT_IMAGE_ROOTS --output OUTPUT_FOLDER_ROOT
                 --load-weights WEIGHT_PATHS --xai-model XAI_MODEL_NAME
