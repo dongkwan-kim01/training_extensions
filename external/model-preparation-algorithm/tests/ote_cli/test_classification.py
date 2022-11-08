@@ -23,6 +23,7 @@ from ote_cli.utils.tests import (
     ote_hpo_testing,
     ote_train_testing,
     ote_export_testing,
+    ote_explain_testing,
     pot_optimize_testing,
     pot_eval_testing,
     nncf_optimize_testing,
@@ -119,6 +120,12 @@ class TestToolsMPAClassification:
     @pytest.mark.parametrize("template", templates, ids=templates_ids)
     def test_ote_eval_openvino(self, template):
         ote_eval_openvino_testing(template, root, ote_dir, args, threshold=0.0)
+
+    @e2e_pytest_component
+    @pytest.mark.skipif(TT_STABILITY_TESTS, reason="This is TT_STABILITY_TESTS")
+    @pytest.mark.parametrize("template", templates, ids=templates_ids)
+    def test_ote_explain(self, template):
+        ote_explain_testing(template, root, ote_dir, args)
 
     @e2e_pytest_component
     @pytest.mark.skipif(TT_STABILITY_TESTS, reason="This is TT_STABILITY_TESTS")
@@ -278,6 +285,12 @@ class TestToolsMPAMultilabelClassification:
     @e2e_pytest_component
     @pytest.mark.skipif(TT_STABILITY_TESTS, reason="This is TT_STABILITY_TESTS")
     @pytest.mark.parametrize("template", templates, ids=templates_ids)
+    def test_ote_explain(self, template):
+        ote_explain_testing(template, root, ote_dir, args_m)
+
+    @e2e_pytest_component
+    @pytest.mark.skipif(TT_STABILITY_TESTS, reason="This is TT_STABILITY_TESTS")
+    @pytest.mark.parametrize("template", templates, ids=templates_ids)
     def test_ote_demo(self, template):
         pytest.skip("Demo for multi-label classification is not supported now.")
         ote_demo_testing(template, root, ote_dir, args_m)
@@ -414,6 +427,12 @@ class TestToolsMPAHierarchicalClassification:
     @pytest.mark.parametrize("template", templates, ids=templates_ids)
     def test_ote_eval_openvino(self, template):
         ote_eval_openvino_testing(template, root, ote_dir, args_h, threshold=0.02)
+
+    @e2e_pytest_component
+    @pytest.mark.skipif(TT_STABILITY_TESTS, reason="This is TT_STABILITY_TESTS")
+    @pytest.mark.parametrize("template", templates, ids=templates_ids)
+    def test_ote_explain(self, template):
+        ote_explain_testing(template, root, ote_dir, args_h)
 
     @e2e_pytest_component
     @pytest.mark.skipif(TT_STABILITY_TESTS, reason="This is TT_STABILITY_TESTS")

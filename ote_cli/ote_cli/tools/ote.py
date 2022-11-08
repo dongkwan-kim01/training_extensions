@@ -22,6 +22,7 @@ import sys
 from .demo import main as ote_demo
 from .deploy import main as ote_deploy
 from .eval import main as ote_eval
+from .explain import main as ote_explain
 from .export import main as ote_export
 from .find import main as ote_find
 from .optimize import main as ote_optimize
@@ -35,6 +36,7 @@ __all__ = [
     "ote_find",
     "ote_train",
     "ote_optimize",
+    "ote_explain",
 ]
 
 
@@ -59,6 +61,7 @@ def main():
       - find
       - train
       - optimize
+      - explain
     """
 
     name = parse_args().operation

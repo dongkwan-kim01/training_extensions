@@ -17,6 +17,8 @@ import os
 import shutil
 from subprocess import run  # nosec
 
+import cv2
+import numpy as np
 import pytest
 
 
@@ -566,3 +568,33 @@ def xfail_templates(templates, xfail_template_ids_reasons):
                 "More than one reason for template. If you have more than one Jira tickets, list them in one reason."
             )
     return xfailed_templates
+
+
+def ote_explain_testing(template, root, ote_dir, args):
+    work_dir, template_work_dir, _ = get_some_vars(template, root)
+    test_algorithms = ["ActivationMap", "EigenCAM"]
+    check_files = ("Slide1_", "Slide2_")
+    for test_algorithm in test_algorithms:
+        output_dir = f"{template_work_dir}/explain_{template.model_template_id}/{test_algorithm}/"
+        command_line = [
+            "ote",
+            "explain",
+            template.model_template_path,
+            "--load-weights",
+            f"{template_work_dir}/trained_{template.model_template_id}/weights.pth",
+            "--explain-data-root",
+            os.path.join(ote_dir, args["--input"]),
+            "--save-explanation-to",
+            output_dir,
+            "--explain-algorithm",
+            test_algorithm,
+        ]
+        assert run(command_line, env=collect_env_vars(work_dir)).returncode == 0
+        compare_dir = f"{ote_dir}/data/explain_samples/explain_{template.model_template_id}/{test_algorithm}/"
+        for fname in os.listdir(output_dir):
+            if fname.startswith(check_files) and "overlay" in fname:
+                compare_image = cv2.imread(os.path.join(compare_dir, fname))
+                output_image = cv2.imread(os.path.join(output_dir, fname))
+                assert (
+                    np.sum((compare_image - output_image) ** 2) == 0
+                ), "explain output image is not same as sample one!"

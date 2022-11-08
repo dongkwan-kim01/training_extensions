@@ -446,6 +446,38 @@ optional arguments:
   --save-model-to SAVE_MODEL_TO
                         Location where openvino.zip will be stored.
 ```
+### ote explain
+
+`ote explain` runs explanation of a trained model on a particular dataset.
+
+With the `--help` command, you can list additional information, such as its parameters common to all model templates:
+command example:
+
+```
+ote explain ./external/model-preparation-algorithm/configs/classification/mobilenet_v3_large_1_cls_incr/template.yaml --help
+```
+
+output example:
+
+```
+usage: ote explain [-h] TEMPLATE
+                --input INPUT_IMAGE_ROOTS --output OUTPUT_FOLDER_ROOT
+                --load-weights WEIGHT_PATHS --xai-model XAI_MODEL_NAME
+positional arguments:
+  template
+  {params}              sub-command help
+    params              Hyper parameters defined in template file.
+optional arguments:
+  -h, --help            show this help message and exit
+  --explain-data-root EXPLAIN_DATA_ROOT
+                        paths to explain data roots
+  --save-explanation-to SAVE_EXPLANATION_TO
+                        Root path for image dump. Will save saliency map
+                        and overlay images to this folder
+  --load-weights WEIGHT_PATHS
+  --explain-algorithm EXPLAIN_ALGORITHM
+                        explain algirhtm name. Currently only support EigenCAM and ActivationMap
+```
 
 ---
 

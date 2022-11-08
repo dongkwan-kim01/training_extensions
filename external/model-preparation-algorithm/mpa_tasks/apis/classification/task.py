@@ -56,6 +56,7 @@ from ote_sdk.usecases.reporting.time_monitor_callback import TimeMonitorCallback
 from ote_sdk.usecases.tasks.interfaces.evaluate_interface import IEvaluationTask
 from ote_sdk.usecases.tasks.interfaces.export_interface import ExportType, IExportTask
 from ote_sdk.usecases.tasks.interfaces.inference_interface import IInferenceTask
+from ote_sdk.usecases.tasks.interfaces.explain_interface import IExplainTask
 from ote_sdk.usecases.tasks.interfaces.unload_interface import IUnload
 from ote_sdk.utils.argument_checks import check_input_parameters_type
 from ote_sdk.utils.labels_utils import get_empty_label
@@ -100,7 +101,7 @@ class TrainingProgressCallback(TimeMonitorCallback):
         self.update_progress_callback(self.get_progress(), score=score)
 
 
-class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvaluationTask, IUnload):
+class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvaluationTask, IExplainTask, IUnload):
     def __init__(self, task_environment: TaskEnvironment):
         self._should_stop = False
         super().__init__(TASK_CONFIG, task_environment)
@@ -156,6 +157,31 @@ class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvalua
             update_progress_callback = inference_parameters.update_progress
 
         self._add_predictions_to_dataset(prediction_results, dataset, update_progress_callback)
+        return dataset
+
+    def explain(
+        self,
+        dataset: DatasetEntity,
+        explain_parameters: Optional[InferenceParameters] = None,
+    ) -> DatasetEntity:
+        logger.info("called explain()")
+        stage_module = "ClsExplainer"
+        self._data_cfg = self._init_test_data_cfg(dataset)
+        dataset = dataset.with_empty_annotations()
+
+        results = self._run_task(
+            stage_module,
+            mode="train",
+            dataset=dataset,
+            explainer=explain_parameters.explainer,
+        )
+        logger.debug(f"result of run_task {stage_module} module = {results}")
+        saliency_maps = results["outputs"]["saliency_maps"]
+        update_progress_callback = default_progress_callback
+        if explain_parameters is not None:
+            update_progress_callback = explain_parameters.update_progress
+
+        self._add_saliency_maps_to_dataset(saliency_maps, dataset, update_progress_callback)
         return dataset
 
     def evaluate(
@@ -277,35 +303,20 @@ class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvalua
 
             update_progress_callback(int(i / dataset_size * 100))
 
-    def _init_recipe_hparam(self) -> dict:
-        warmup_iters = int(self._hyperparams.learning_parameters.learning_rate_warmup_iters)
-        if self._multilabel:
-            # hack to use 1cycle policy
-            lr_config = ConfigDict(max_lr=self._hyperparams.learning_parameters.learning_rate, warmup=None)
-        else:
-            lr_config = (
-                ConfigDict(warmup_iters=warmup_iters) if warmup_iters > 0 else ConfigDict(warmup_iters=0, warmup=None)
+    def _add_saliency_maps_to_dataset(self, saliency_maps, dataset, update_progress_callback):
+        """Loop over dataset again and assign activation maps"""
+        dataset_size = len(dataset)
+        for i, (dataset_item, saliency_map) in enumerate(zip(dataset, saliency_maps)):
+            saliency_map = get_actmap(saliency_map, (dataset_item.width, dataset_item.height))
+            saliency_map_media = ResultMediaEntity(
+                name="Saliency Map",
+                type="saliency_map",
+                annotation_scene=dataset_item.annotation_scene,
+                numpy=saliency_map,
+                roi=dataset_item.roi,
             )
-
-        if self._hyperparams.learning_parameters.enable_early_stopping:
-            early_stop = ConfigDict(
-                start=int(self._hyperparams.learning_parameters.early_stop_start),
-                patience=int(self._hyperparams.learning_parameters.early_stop_patience),
-                iteration_patience=int(self._hyperparams.learning_parameters.early_stop_iteration_patience),
-            )
-        else:
-            early_stop = False
-
-        return ConfigDict(
-            optimizer=ConfigDict(lr=self._hyperparams.learning_parameters.learning_rate),
-            lr_config=lr_config,
-            early_stop=early_stop,
-            data=ConfigDict(
-                samples_per_gpu=int(self._hyperparams.learning_parameters.batch_size),
-                workers_per_gpu=int(self._hyperparams.learning_parameters.num_workers),
-            ),
-            runner=ConfigDict(max_epochs=int(self._hyperparams.learning_parameters.num_iters)),
-        )
+            dataset_item.append_metadata_item(saliency_map_media, model=self._task_environment.model)
+            update_progress_callback(int(i / dataset_size * 100))
 
     def _init_recipe(self):
         logger.info("called _init_recipe()")
@@ -362,6 +373,16 @@ class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvalua
         )
         return data_cfg
 
+    def _overwrite_parameters(self):
+        super()._overwrite_parameters()
+        if self._multilabel:
+            # hack to use 1cycle policy
+            self._recipe_cfg.merge_from_dict(
+                ConfigDict(
+                    lr_config=ConfigDict(max_lr=self._hyperparams.learning_parameters.learning_rate, warmup=None)
+                )
+            )
+
     def _patch_datasets(self, config: MPAConfig, domain=Domain.CLASSIFICATION):
         def patch_color_conversion(pipeline):
             # Default data format for OTE is RGB, while mmdet uses BGR, so negate the color conversion flag.
@@ -395,7 +416,7 @@ class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvalua
 
             # In train dataset, when sample size is smaller than batch size
             if subset == "train" and self._data_cfg:
-                train_data_cfg = Stage.get_train_data_cfg(self._data_cfg)
+                train_data_cfg = Stage.get_data_cfg(self._data_cfg, "train")
                 if len(train_data_cfg.get("ote_dataset", [])) < self._recipe_cfg.data.get("samples_per_gpu", 2):
                     cfg.drop_last = False
 
