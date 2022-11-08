@@ -278,17 +278,22 @@ def save_saliency_output(
     saliency_map: np.array,
     save_dir: str,
     fname: str,
-    weight: float = 0.5,
+    weight: float = 0.3,
 ) -> None:
     """
     receive img and saliency map, then convert to colormap image and save images
     """
-    heatmap = cv2.applyColorMap(np.uint8(saliency_map), cv2.COLORMAP_JET)
-    overlay = (1 - weight) * img + weight * heatmap
-    overlay /= np.max(overlay)
-    overlay = np.uint8(255 * overlay)
-    cv2.imwrite(f"{os.path.join(save_dir, fname)}_saliency_map.jpg", heatmap)
-    cv2.imwrite(f"{os.path.join(save_dir, fname)}_overlay_img.jpg", overlay)
+    assert len(img.shape) == 3, \
+        f"img shape should be (h, w, c), but currently {img.shape}!"
+    h, w, _ = img.shape
+
+    # overlapped
+    overlapped = img * weight + saliency_map * (1-weight)
+    overlapped[overlapped > 255] = 255
+    overlapped = overlapped.astype(np.uint8)
+    
+    cv2.imwrite(f"{os.path.join(save_dir, fname)}_saliency_map.jpg", saliency_map)
+    cv2.imwrite(f"{os.path.join(save_dir, fname)}_overlay_img.jpg", overlapped)
 
 
 def get_explain_dataset_from_filelist(image_files: list):
