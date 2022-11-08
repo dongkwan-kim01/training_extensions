@@ -54,9 +54,9 @@ from ote_sdk.serialization.label_mapper import label_schema_to_bytes
 from ote_sdk.usecases.evaluation.metrics_helper import MetricsHelper
 from ote_sdk.usecases.reporting.time_monitor_callback import TimeMonitorCallback
 from ote_sdk.usecases.tasks.interfaces.evaluate_interface import IEvaluationTask
+from ote_sdk.usecases.tasks.interfaces.explain_interface import IExplainTask
 from ote_sdk.usecases.tasks.interfaces.export_interface import ExportType, IExportTask
 from ote_sdk.usecases.tasks.interfaces.inference_interface import IInferenceTask
-from ote_sdk.usecases.tasks.interfaces.explain_interface import IExplainTask
 from ote_sdk.usecases.tasks.interfaces.unload_interface import IUnload
 from ote_sdk.utils.argument_checks import check_input_parameters_type
 from ote_sdk.utils.labels_utils import get_empty_label
@@ -307,6 +307,7 @@ class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvalua
         """Loop over dataset again and assign activation maps"""
         dataset_size = len(dataset)
         for i, (dataset_item, saliency_map) in enumerate(zip(dataset, saliency_maps)):
+            saliency_map = get_actmap(saliency_map, (dataset_item.width, dataset_item.height))
             saliency_map_media = ResultMediaEntity(
                 name="Saliency Map",
                 type="saliency_map",

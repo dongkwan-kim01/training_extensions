@@ -20,8 +20,8 @@ import json
 import os
 import re
 import struct
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from zipfile import ZipFile
 
 import cv2
@@ -283,17 +283,16 @@ def save_saliency_output(
     """
     receive img and saliency map, then convert to colormap image and save images
     """
-    assert len(img.shape) == 3, \
-        f"img shape should be (h, w, c), but currently {img.shape}!"
-    h, w, _ = img.shape
+    assert (
+        len(img.shape) == 3
+    ), f"img shape should be (h, w, c), but currently {img.shape}!"
 
-    # overlapped
-    overlapped = img * weight + saliency_map * (1-weight)
-    overlapped[overlapped > 255] = 255
-    overlapped = overlapped.astype(np.uint8)
-    
+    overlay = img * weight + saliency_map * (1 - weight)
+    overlay[overlay > 255] = 255
+    overlay = overlay.astype(np.uint8)
+
     cv2.imwrite(f"{os.path.join(save_dir, fname)}_saliency_map.jpg", saliency_map)
-    cv2.imwrite(f"{os.path.join(save_dir, fname)}_overlay_img.jpg", overlapped)
+    cv2.imwrite(f"{os.path.join(save_dir, fname)}_overlay_img.jpg", overlay)
 
 
 def get_explain_dataset_from_filelist(image_files: list):

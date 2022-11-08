@@ -446,6 +446,7 @@ optional arguments:
   --save-model-to SAVE_MODEL_TO
                         Location where openvino.zip will be stored.
 ```
+
 ### ote explain
 
 `ote explain` runs explanation of a trained model on a particular dataset.
