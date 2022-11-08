@@ -29,4 +29,3 @@ class IExplainTask(metaclass=abc.ABCMeta):
         :return: The results of the explain, such as saliency_map or feature_map
         """
         raise NotImplementedError
-
