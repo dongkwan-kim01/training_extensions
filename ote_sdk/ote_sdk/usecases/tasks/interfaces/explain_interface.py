@@ -30,4 +30,3 @@ class IExplainTask(metaclass=abc.ABCMeta):
         """
 
         raise NotImplementedError
-

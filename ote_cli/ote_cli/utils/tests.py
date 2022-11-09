@@ -598,4 +598,3 @@ def ote_explain_testing(template, root, ote_dir, args):
                 assert (
                     np.sum((compare_image - output_image) ** 2) == 0
                 ), "explain output image is not same as sample one!"
-
