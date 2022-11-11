@@ -123,8 +123,9 @@ class ClassificationInferenceTask(
     def explain(
         self,
         dataset: DatasetEntity,
-        explain_parameters: Optional[InferenceParameters] = None,
+        explain_parameters: Optional[InferenceParameters],
     ) -> DatasetEntity:
+        """Main explain function of OTX Classification Task."""
         logger.info("called explain()")
         stage_module = "ClsExplainer"
         self._data_cfg = self._init_test_data_cfg(dataset)
@@ -273,7 +274,7 @@ class ClassificationInferenceTask(
             update_progress_callback(int(i / dataset_size * 100))
 
     def _add_saliency_maps_to_dataset(self, saliency_maps, dataset, update_progress_callback):
-        """Loop over dataset again and assign activation maps"""
+        """Loop over dataset again and assign activation maps."""
         dataset_size = len(dataset)
         for i, (dataset_item, saliency_map) in enumerate(zip(dataset, saliency_maps)):
             saliency_map = get_actmap(saliency_map, (dataset_item.width, dataset_item.height))

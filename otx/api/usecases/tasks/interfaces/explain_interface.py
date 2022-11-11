@@ -21,7 +21,7 @@ class IExplainTask(metaclass=abc.ABCMeta):
         explain_parameters: InferenceParameters,
     ) -> DatasetEntity:
         """This is the method that is called upon explanation.
-        
+
         Args:
             dataset: The input dataset to perform the explain on.
             explain_parameters: The parameters to use for the explain.
@@ -30,4 +30,3 @@ class IExplainTask(metaclass=abc.ABCMeta):
             The results of the explanation.
         """
         raise NotImplementedError
-

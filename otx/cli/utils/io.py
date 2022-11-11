@@ -14,15 +14,16 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import cv2
-import numpy as np
 import json
 import os
-from pathlib import Path
 import re
 import struct
 import tempfile
+from pathlib import Path
 from zipfile import ZipFile
+
+import cv2
+import numpy as np
 
 from otx.api.entities.annotation import AnnotationSceneEntity, AnnotationSceneKind
 from otx.api.entities.dataset_item import DatasetItemEntity
@@ -249,9 +250,7 @@ def generate_label_schema(dataset: DatasetEntity, task_type: TaskType) -> LabelS
 
 
 def get_image_files(root_dir):
-    """
-    recursively get all image file paths from given root_dir
-    """
+    """Recursively get all image file paths from given root_dir."""
     img_data_formats = [
         ".jpg",
         ".jpeg",
@@ -271,9 +270,7 @@ def get_image_files(root_dir):
     img_files = []
     for root, _, _ in os.walk(root_dir):
         for format_ in img_data_formats:
-            img_files.extend(
-                [(root, file.name) for file in Path(root).glob(f"*{format_}")]
-            )
+            img_files.extend([(root, file.name) for file in Path(root).glob(f"*{format_}")])
     return img_files if img_files else None
 
 
@@ -284,9 +281,7 @@ def save_saliency_output(
     fname: str,
     weight: float = 0.3,
 ) -> None:
-    """
-    receive img and saliency map, then convert to colormap image and save images
-    """
+    """Receives img and saliency map, then convert to colormap image and save images."""
     assert (
         len(img.shape) == len(saliency_map.shape) == 3
     ), f"img and saliency map shape should be (h, w, c), but currently {img.shape}, \
@@ -301,12 +296,8 @@ def save_saliency_output(
 
 
 def get_explain_dataset_from_filelist(image_files: list):
-    """
-    get explain dataset with empty annotation
-    """
-    empty_annotation = AnnotationSceneEntity(
-        annotations=[], kind=AnnotationSceneKind.PREDICTION
-    )
+    """Get explain dataset with empty annotation."""
+    empty_annotation = AnnotationSceneEntity(annotations=[], kind=AnnotationSceneKind.PREDICTION)
     items = []
     for root_dir, filename in image_files:
         frame = cv2.imread(os.path.join(root_dir, filename))

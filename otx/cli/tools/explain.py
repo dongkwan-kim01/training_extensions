@@ -1,6 +1,4 @@
-"""
-Model explain demonstration tool.
-"""
+"""Model explain demonstration tool."""
 
 # Copyright (C) 2021 Intel Corporation
 #
@@ -22,7 +20,6 @@ import os
 from otx.api.configuration.helper import create
 from otx.api.entities.inference_parameters import InferenceParameters
 from otx.api.entities.task_environment import TaskEnvironment
-
 from otx.cli.registry import find_and_parse_model_template
 from otx.cli.utils.config import override_parameters
 from otx.cli.utils.importing import get_impl_class
@@ -121,9 +118,7 @@ def main():
         model_template=template,
     )
 
-    environment.model = read_model(
-        environment.get_model_configuration(), args.load_weights, None
-    )
+    environment.model = read_model(environment.get_model_configuration(), args.load_weights, None)
 
     task = task_class(task_environment=environment)
 
@@ -154,9 +149,7 @@ def main():
             weight=args.weight,
         )
 
-    print(
-        f"saliency maps saved to {args.save_explanation_to} for {len(image_files)} images..."
-    )
+    print(f"saliency maps saved to {args.save_explanation_to} for {len(image_files)} images...")
 
 
 if __name__ == "__main__":
