@@ -1,4 +1,4 @@
-"""This module contains the interface class for tasks. """
+"""This module contains the interface class for tasks."""
 
 
 # Copyright (C) 2021-2022 Intel Corporation

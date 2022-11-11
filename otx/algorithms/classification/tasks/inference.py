@@ -123,7 +123,7 @@ class ClassificationInferenceTask(
     def explain(
         self,
         dataset: DatasetEntity,
-        explain_parameters: Optional[InferenceParameters],
+        explain_parameters: Optional[InferenceParameters] = None,
     ) -> DatasetEntity:
         """Main explain function of OTX Classification Task."""
         logger.info("called explain()")
@@ -135,13 +135,13 @@ class ClassificationInferenceTask(
             stage_module,
             mode="train",
             dataset=dataset,
-            explainer=explain_parameters.explainer,
+            explainer=explain_parameters.explainer if explain_parameters else None,
         )
         logger.debug(f"result of run_task {stage_module} module = {results}")
         saliency_maps = results["outputs"]["saliency_maps"]
         update_progress_callback = default_progress_callback
         if explain_parameters is not None:
-            update_progress_callback = explain_parameters.update_progress
+            update_progress_callback = explain_parameters.update_progress  # type: ignore
 
         self._add_saliency_maps_to_dataset(saliency_maps, dataset, update_progress_callback)
         return dataset

@@ -41,9 +41,7 @@ SUPPORTED_EXPLAIN_ALGORITHMS = ["ActivationMap", "EigenCAM"]
 
 
 def parse_args():
-    """
-    Parses command line arguments.
-    """
+    """Parses command line arguments."""
 
     pre_parser = argparse.ArgumentParser(add_help=False)
     pre_parser.add_argument("template")
@@ -89,9 +87,7 @@ def parse_args():
 
 
 def main():
-    """
-    Main function that is used for model explanation.
-    """
+    """Main function that is used for model explanation."""
 
     # Dynamically create an argument parser based on override parameters.
     args, template, hyper_parameters = parse_args()
