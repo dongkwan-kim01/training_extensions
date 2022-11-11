@@ -490,7 +490,11 @@ def otx_explain_testing(template, root, otx_dir, args):
         train_type = 'default'
 
     for test_algorithm in test_algorithms:
-        output_dir = f"{template_work_dir}/explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
+        save_dir = (
+            f"explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
+        )
+        output_dir = os.path.join(template_work_dir, save_dir)
+        compare_dir = os.path.join(f"{otx_dir}/data/explain_samples/", save_dir)
         command_line = [
             "otx",
             "explain",
@@ -505,7 +509,6 @@ def otx_explain_testing(template, root, otx_dir, args):
             test_algorithm,
         ]
         assert run(command_line).returncode == 0
-        compare_dir = f"{otx_dir}/data/explain_samples/explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
         for fname in os.listdir(output_dir):
             if fname.startswith(check_files) and "overlay" in fname:
                 compare_image = cv2.imread(os.path.join(compare_dir, fname))

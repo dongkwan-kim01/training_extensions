@@ -575,16 +575,20 @@ def ote_explain_testing(template, root, ote_dir, args):
     test_algorithms = ["ActivationMap", "EigenCAM"]
     check_files = ("Slide1_", "Slide2_", "intel_1_")
 
-    train_ann_file = args.get('--train-ann-file', '')
-    if 'hierarchical' in train_ann_file:
-        train_type = 'hierarchical'
-    elif 'multilabel' in train_ann_file:
-        train_type = 'multilabel'
+    train_ann_file = args.get("--train-ann-file", "")
+    if "hierarchical" in train_ann_file:
+        train_type = "hierarchical"
+    elif "multilabel" in train_ann_file:
+        train_type = "multilabel"
     else:
-        train_type = 'default'
+        train_type = "default"
 
     for test_algorithm in test_algorithms:
-        output_dir = f"{template_work_dir}/explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
+        save_dir = (
+            f"explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
+        )
+        output_dir = os.path.join(template_work_dir, save_dir)
+        compare_dir = os.path.join(f"{ote_dir}/data/explain_samples/", save_dir)
         command_line = [
             "ote",
             "explain",
@@ -599,7 +603,6 @@ def ote_explain_testing(template, root, ote_dir, args):
             test_algorithm,
         ]
         assert run(command_line, env=collect_env_vars(work_dir)).returncode == 0
-        compare_dir = f"{ote_dir}/data/explain_samples/explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
         for fname in os.listdir(output_dir):
             if fname.startswith(check_files) and "overlay" in fname:
                 compare_image = cv2.imread(os.path.join(compare_dir, fname))
