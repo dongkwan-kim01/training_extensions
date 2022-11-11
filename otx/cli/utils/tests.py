@@ -479,9 +479,18 @@ def xfail_templates(templates, xfail_template_ids_reasons):
 def otx_explain_testing(template, root, otx_dir, args):
     template_work_dir = get_template_dir(template, root)
     test_algorithms = ["ActivationMap", "EigenCAM"]
-    check_files = ("Slide1_", "Slide2_")
+    check_files = ("Slide1_", "Slide2_", "intel_1_")
+
+    train_ann_file = args.get('--train-ann-file', '')
+    if 'hierarchical' in train_ann_file:
+        train_type = 'hierarchical'
+    elif 'multilabel' in train_ann_file:
+        train_type = 'multilabel'
+    else:
+        train_type = 'default'
+
     for test_algorithm in test_algorithms:
-        output_dir = f"{template_work_dir}/explain_{template.model_template_id}/{test_algorithm}/"
+        output_dir = f"{template_work_dir}/explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
         command_line = [
             "otx",
             "explain",
@@ -496,7 +505,7 @@ def otx_explain_testing(template, root, otx_dir, args):
             test_algorithm,
         ]
         assert run(command_line).returncode == 0
-        compare_dir = f"{otx_dir}/data/explain_samples/explain_{template.model_template_id}/{test_algorithm}/"
+        compare_dir = f"{otx_dir}/data/explain_samples/explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
         for fname in os.listdir(output_dir):
             if fname.startswith(check_files) and "overlay" in fname:
                 compare_image = cv2.imread(os.path.join(compare_dir, fname))
