@@ -510,6 +510,5 @@ def otx_explain_testing(template, root, otx_dir, args):
             if fname.startswith(check_files) and "overlay" in fname:
                 compare_image = cv2.imread(os.path.join(compare_dir, fname))
                 output_image = cv2.imread(os.path.join(output_dir, fname))
-                assert (
-                    np.sum((compare_image - output_image) ** 2) == 0
-                ), "explain output image is not same as sample one!"
+                diff = np.sum((compare_image - output_image) ** 2) == 0
+                assert diff == 0, f"explain output image is not same as sample one, with {diff}!"
