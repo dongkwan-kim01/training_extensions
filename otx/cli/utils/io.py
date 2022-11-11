@@ -288,8 +288,9 @@ def save_saliency_output(
     receive img and saliency map, then convert to colormap image and save images
     """
     assert (
-        len(img.shape) == 3
-    ), f"img shape should be (h, w, c), but currently {img.shape}!"
+        len(img.shape) == len(saliency_map.shape) == 3
+    ), f"img and saliency map shape should be (h, w, c), but currently {img.shape}, \
+        {saliency_map.shape}!"
 
     overlay = img * weight + saliency_map * (1 - weight)
     overlay[overlay > 255] = 255

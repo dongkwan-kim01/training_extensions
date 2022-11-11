@@ -22,12 +22,12 @@ def get_actmap(
         output_res (Union[tuple, list]): Output resolution
 
     Returns:
-        Activation map, heatmap
+        saliency_map (np.ndarray): [H, W, 3] colormap, more red means more salient
+
     """
     if len(saliency_map.shape) == 3:
         saliency_map = saliency_map[0]
 
     saliency_map = cv2.resize(saliency_map, output_res)
     saliency_map = cv2.applyColorMap(saliency_map, cv2.COLORMAP_JET)
-    saliency_map = cv2.cvtColor(saliency_map, cv2.COLOR_BGR2RGB)
     return saliency_map
