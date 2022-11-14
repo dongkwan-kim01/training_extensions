@@ -511,7 +511,7 @@ def otx_explain_testing(template, root, otx_dir, args):
         ]
         assert run(command_line).returncode == 0
         for fname in os.listdir(output_dir):
-            if fname.startswith(check_files) and "overlay" in fname:
+            if fname.startswith(check_files) and "saliency" in fname:
                 compare_image = cv2.imread(os.path.join(compare_dir, fname))
                 output_image = cv2.imread(os.path.join(output_dir, fname))
                 diff = np.sum((compare_image - output_image) ** 2) == 0
