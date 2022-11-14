@@ -125,15 +125,6 @@ class OTXClassification(Classification):
 
 
 @check_input_parameters_type()
-def get_actmap(features: Union[np.ndarray, Iterable, int, float], output_res: Union[tuple, list]):
-    """Get actmap."""
-    am = cv2.resize(features, output_res)
-    am = cv2.applyColorMap(am, cv2.COLORMAP_JET)
-    am = cv2.cvtColor(am, cv2.COLOR_BGR2RGB)
-    return am
-
-
-@check_input_parameters_type()
 def sigmoid_numpy(x: np.ndarray):
     """Sigmoid numpy."""
     return 1.0 / (1.0 + np.exp(-1.0 * x))

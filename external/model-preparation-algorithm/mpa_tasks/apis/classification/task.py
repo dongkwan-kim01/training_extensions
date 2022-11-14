@@ -60,7 +60,6 @@ from ote_sdk.usecases.tasks.interfaces.inference_interface import IInferenceTask
 from ote_sdk.usecases.tasks.interfaces.unload_interface import IUnload
 from ote_sdk.utils.argument_checks import check_input_parameters_type
 from ote_sdk.utils.labels_utils import get_empty_label
-from ote_sdk.utils.vis_utils import get_actmap
 from torchreid_tasks.nncf_task import OTEClassificationNNCFTask
 
 # from torchreid_tasks.utils import TrainingProgressCallback
@@ -290,7 +289,6 @@ class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvalua
                 dataset_item.append_metadata_item(active_score, model=self._task_environment.model)
 
             if saliency_map is not None:
-                saliency_map = get_actmap(saliency_map, (dataset_item.width, dataset_item.height))
                 saliency_map_media = ResultMediaEntity(
                     name="Saliency Map",
                     type="saliency_map",
@@ -307,7 +305,6 @@ class ClassificationInferenceTask(BaseTask, IInferenceTask, IExportTask, IEvalua
         """Loop over dataset again and assign activation maps"""
         dataset_size = len(dataset)
         for i, (dataset_item, saliency_map) in enumerate(zip(dataset, saliency_maps)):
-            saliency_map = get_actmap(saliency_map, (dataset_item.width, dataset_item.height))
             saliency_map_media = ResultMediaEntity(
                 name="Saliency Map",
                 type="saliency_map",

@@ -103,7 +103,6 @@ from otx.api.utils.argument_checks import (
     check_input_parameters_type,
 )
 from otx.api.utils.labels_utils import get_empty_label
-from otx.api.utils.vis_utils import get_actmap
 
 logger = logging.getLogger(__name__)
 
@@ -335,12 +334,11 @@ class ClassificationInferenceTask(
             dataset_item.append_metadata_item(feature_vec_media, model=self._task_environment.model)
 
             if dump_features:
-                actmap = get_actmap(saliency_maps[i], (dataset_item.width, dataset_item.height))
                 saliency_media = ResultMediaEntity(
                     name="Saliency Map",
                     type="saliency_map",
                     annotation_scene=dataset_item.annotation_scene,
-                    numpy=actmap,
+                    numpy=saliency_maps[i],
                     roi=dataset_item.roi,
                     label=item_labels[0].label,
                 )

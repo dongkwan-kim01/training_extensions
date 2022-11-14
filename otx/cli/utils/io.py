@@ -39,6 +39,7 @@ from otx.api.entities.model import (
 from otx.api.entities.model_template import TaskType
 from otx.api.serialization.label_mapper import LabelSchemaMapper
 from otx.api.usecases.adapters.model_adapter import ModelAdapter
+from otx.api.utils.vis_utils import get_actmap
 from otx.cli.utils.nncf import is_checkpoint_nncf
 
 
@@ -276,22 +277,23 @@ def get_image_files(root_dir: str):
 
 def save_saliency_output(
     img: np.array,
-    saliency_map: np.array,
+    raw_saliency_map: np.array,
     save_dir: str,
     fname: str,
     weight: float = 0.3,
 ) -> None:
     """Receives img and saliency map, then convert to colormap image and save images."""
     assert (
-        len(img.shape) == len(saliency_map.shape) == 3
-    ), f"img and saliency map shape should be (h, w, c), but currently {img.shape}, \
-        {saliency_map.shape}!"
+        len(img.shape) == 3 and len(raw_saliency_map.shape) == 2
+    ), "img shape should be (h, w, c) and raw_saliency_map should be (h, w)" + \
+        f"but {img.shape} and {raw_saliency_map.shape} each!"
 
+    saliency_map = get_actmap(raw_saliency_map, (img.shape[1], img.shape[0]))
     overlay = img * weight + saliency_map * (1 - weight)
     overlay[overlay > 255] = 255
     overlay = overlay.astype(np.uint8)
 
-    cv2.imwrite(f"{os.path.join(save_dir, fname)}_saliency_map.jpg", saliency_map)
+    cv2.imwrite(f"{os.path.join(save_dir, fname)}_saliency_map.jpg", raw_saliency_map)
     cv2.imwrite(f"{os.path.join(save_dir, fname)}_overlay_img.jpg", overlay)
 
 

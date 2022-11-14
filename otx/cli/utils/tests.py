@@ -21,6 +21,8 @@ import cv2
 import numpy as np
 import pytest
 
+from otx.api.utils.vis_utils import get_actmap
+
 
 def get_template_rel_dir(template):
     return os.path.dirname(os.path.relpath(template.model_template_path))
@@ -491,7 +493,8 @@ def otx_explain_testing(template, root, otx_dir, args):
 
     for test_algorithm in test_algorithms:
         save_dir = f"explain_{template.model_template_id}/{test_algorithm}/{train_type}/"
-        output_dir = os.path.join(template_work_dir, save_dir)
+        # output_dir = os.path.join(template_work_dir, save_dir)
+        output_dir = os.path.join('temp_output', save_dir)
         compare_dir = os.path.join(f"{otx_dir}/data/explain_samples/", save_dir)
         command_line = [
             "otx",
@@ -512,4 +515,11 @@ def otx_explain_testing(template, root, otx_dir, args):
                 compare_image = cv2.imread(os.path.join(compare_dir, fname))
                 output_image = cv2.imread(os.path.join(output_dir, fname))
                 diff = np.sum((compare_image - output_image) ** 2) == 0
-                assert diff == 0, f"explain output image is not same as sample one, with {diff}!"
+                assert diff == 0, f"saliency map output is not same as the sample one, with {diff}!"
+
+
+def otx_actmap_postprocess_test(otx_dir, raw_img_path, processed_img_path):
+    raw = cv2.imread(os.path.join(otx_dir, raw_img_path), 0)
+    processed = cv2.imread(os.path.join(otx_dir, processed_img_path))
+    diff = np.sum((get_actmap(raw, (50, 50)) - processed) ** 2)
+    assert diff == 0, f"post-processing equality is not the same"

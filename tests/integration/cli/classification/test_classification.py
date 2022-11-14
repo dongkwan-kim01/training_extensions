@@ -17,6 +17,7 @@ from otx.cli.utils.tests import (
     nncf_eval_testing,
     nncf_export_testing,
     nncf_optimize_testing,
+    otx_actmap_postprocess_test,
     otx_demo_deployment_testing,
     otx_demo_openvino_testing,
     otx_demo_testing,
@@ -512,3 +513,11 @@ class TestToolsMPAHierarchicalClassification:
     @pytest.mark.parametrize("template", templates, ids=templates_ids)
     def test_pot_eval(self, template, tmp_dir_path):
         pot_eval_testing(template, tmp_dir_path, otx_dir, args_h)
+
+
+@e2e_pytest_component
+@pytest.mark.parametrize(
+    "raw_img,post_processed_img",
+    [('data/explain_samples/7x7_gray.png', 'data/explain_samples/50x50_rgb.png')])
+def test_image_postprocessing(raw_img, post_processed_img):
+    otx_actmap_postprocess_test(otx_dir, raw_img, post_processed_img)

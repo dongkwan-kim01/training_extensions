@@ -46,7 +46,6 @@ from otx.api.usecases.tasks.interfaces.export_interface import ExportType, IExpo
 from otx.api.usecases.tasks.interfaces.inference_interface import IInferenceTask
 from otx.api.usecases.tasks.interfaces.unload_interface import IUnload
 from otx.api.utils.labels_utils import get_empty_label
-from otx.api.utils.vis_utils import get_actmap
 
 # pylint: disable=invalid-name
 
@@ -260,7 +259,6 @@ class ClassificationInferenceTask(
                 dataset_item.append_metadata_item(active_score, model=self._task_environment.model)
 
             if saliency_map is not None:
-                saliency_map = get_actmap(saliency_map, (dataset_item.width, dataset_item.height))
                 saliency_map_media = ResultMediaEntity(
                     name="Saliency Map",
                     type="saliency_map",
@@ -274,10 +272,9 @@ class ClassificationInferenceTask(
             update_progress_callback(int(i / dataset_size * 100))
 
     def _add_saliency_maps_to_dataset(self, saliency_maps, dataset, update_progress_callback):
-        """Loop over dataset again and assign activation maps."""
+        """Loop over dataset again and assign saliency maps."""
         dataset_size = len(dataset)
         for i, (dataset_item, saliency_map) in enumerate(zip(dataset, saliency_maps)):
-            saliency_map = get_actmap(saliency_map, (dataset_item.width, dataset_item.height))
             saliency_map_media = ResultMediaEntity(
                 name="Saliency Map",
                 type="saliency_map",
