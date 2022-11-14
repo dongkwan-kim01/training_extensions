@@ -244,7 +244,7 @@ def generate_label_schema(dataset, task_type):
     return LabelSchemaEntity.from_labels(dataset.get_labels())
 
 
-def get_image_files(root_dir):
+def get_image_files(root_dir: str):
     """
     recursively get all image file paths from given root_dir
     """
